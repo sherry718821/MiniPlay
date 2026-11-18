@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#7357e8"><title>미니 파티 · 함께하는 게임</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+<div class="ambient"></div>
+<header class="site-header"><a class="brand" href="./"><span class="brand-mark">✦</span> 미니<span>파티</span></a><div class="header-right"><span class="live-dot"></span> 모두 함께 플레이</div></header>
+<main class="container">
+  <section id="home" class="view hero">
+    <div class="eyebrow">방 만들기 · 친구 초대하기 · 함께 플레이</div>
+    <h1>함께 즐기는<br><em>실시간 미니게임 파티</em></h1>
+    <p class="lead">방을 만들고 링크나 코드를 공유하세요. 입장하면 닉네임이 자동으로 정해지고, 언제든 바꿀 수 있어요.</p>
+    <div class="home-grid">
+      <article class="panel">
+        <div class="icon purple">✦</div><h2>새로운 방 만들기</h2><p>방을 만들면 방장이 됩니다. 방을 만든 뒤 초대 링크를 공유하세요.</p>
+        <div class="field-row"><label>최대 참가자<select id="maxPlayers"><option>4</option><option selected>8</option><option>12</option><option>16</option><option>24</option><option>32</option></select></label><label>게임 판수<select id="roundCount"><option>3</option><option selected>5</option><option>10</option><option>15</option><option>20</option></select></label></div>
+        <button id="createRoom" class="btn primary">방 만들기 <span>→</span></button>
+      </article>
+      <article class="panel">
+        <div class="icon orange">↗</div><h2>초대 코드로 입장하기</h2><p>친구에게 받은 방 코드만 입력하면 바로 입장합니다.</p>
+        <label>방 코드<input id="roomCode" maxlength="5" placeholder="예: A8K2Q" class="room-code" autocomplete="off"></label>
+        <button id="joinRoom" class="btn secondary">방에 입장하기 <span>→</span></button>
+      </article>
+    </div>
+    <div class="feature-line"><span>⚡ 순발력</span><span>🧠 퀴즈</span><span>🔢 기억력</span><span>🎯 전략</span><span>🏆 누적 랭킹</span></div>
+  </section>
+
+  <section id="lobby" class="view hidden">
+    <div class="section-top"><span class="tag">게임 대기실</span><span id="lobbyHint">친구들을 기다리는 중</span></div>
+    <div class="lobby-heading"><div><div class="eyebrow">우리의 게임방</div><h1>친구들이 모이고 있어요.<br><em>모두 함께 플레이!</em></h1></div><div class="room-code-card"><small>방 코드</small><strong id="roomCodeDisplay">-----</strong><button id="copyRoomCode" class="btn small">코드 복사</button></div></div>
+    <div class="lobby-grid">
+      <article class="panel"><div class="panel-title"><h2>참가자</h2><b id="playerCount">0 / 8</b></div><div id="playerList" class="player-list"></div><p class="note">👑 방을 만든 사람이 게임을 시작할 수 있어요. 다른 참가자는 준비하지 않아도 됩니다.</p><button id="startGame" class="btn primary wide">게임 시작하기 <span>→</span></button><button id="leaveRoom" class="text-button">방 나가기</button></article>
+      <article class="panel"><div class="panel-title"><h2>예정된 게임 장르</h2><span class="muted" id="courseLength">5 라운드</span></div><div class="game-list"><div>⚡ <b>반응속도 챌린지</b><small>신호가 뜨면 가장 빠르게!</small></div><div>💡 <b>상식 퀴즈</b><small>정답을 빠르게 선택하세요.</small></div><div>🔢 <b>숫자 기억력</b><small>순간적으로 공개되는 숫자를 기억!</small></div><div>✖️ <b>암산 스프린트</b><small>계산 문제를 정확하게 풀기.</small></div><div>🎨 <b>컬러 센스</b><small>색깔을 빠르게 판별하세요.</small></div><div>🔤 <b>단어 타이핑</b><small>제시된 단어를 먼저 입력!</small></div></div></article>
+    </div>
+    <div class="obs-card"><div><b>친구 초대하기</b><small>초대 링크를 보내면 방 코드 입력 없이 바로 입장합니다.</small></div><button id="copyInvite" class="btn small">초대 링크 복사 ↗</button></div><div class="profile-edit panel"><label>내 닉네임<input id="nicknameEdit" maxlength="18" placeholder="새 닉네임"></label><button id="saveNickname" class="btn small">닉네임 저장</button></div>
+  </section>
+
+  <section id="playing" class="view hidden">
+    <div class="game-top"><span class="tag">라운드 <b id="roundNumber">1</b></span><span id="gameCategory">MINI GAME</span><span class="push"></span><span id="gameClock" class="clock">대기 중</span></div>
+    <article class="panel game-panel"><div class="eyebrow" id="gameEyebrow">MINI PARTY GAME</div><h1 id="gameTitle">게임 이름</h1><p id="gameDescription" class="game-description"></p><div id="gameArea"></div><div id="gameFeedback" class="feedback" aria-live="polite"></div></article>
+    <div class="live-score"><div class="panel-title"><h2>현재 점수</h2><span class="muted">실시간 업데이트</span></div><div id="scoreList" class="score-list"></div></div>
+    <div id="hostControls" class="host-controls hidden"><button id="hostNext" class="btn primary">라운드 결과 확정 / 다음 게임</button></div>
+  </section>
+
+  <section id="results" class="view hidden">
+    <div class="eyebrow">PARTY COMPLETE</div><h1 class="result-heading">오늘의 <em>최종 순위</em></h1><p class="lead">모든 라운드가 끝났습니다. 함께해 주셔서 고마워요!</p>
+    <article class="panel result-panel"><div class="winner-icon">🏆</div><div id="finalRanking"></div><button id="backHome" class="btn primary wide">처음으로</button></article>
+  </section>
+
+  <section id="overlay" class="view hidden">
+    <div class="overlay-head"><span class="brand"><span class="brand-mark">✦</span> 미니<span>파티</span></span><span class="tag">실시간 순위</span></div>
+    <div class="overlay-room"><span>ROOM</span><b id="overlayCode">-----</b><span id="overlayRound">대기 중</span></div>
+    <div id="overlayPlayers" class="overlay-ranking"></div>
+    <div class="overlay-footer">함께 플레이 · 미니 파티</div>
+  </section>
+</main>
+<div id="toast" class="toast"></div>
+</body></html>
