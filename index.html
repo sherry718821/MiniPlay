@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#7357e8"><title>MINI PARTY · Streamer Games</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+<div class="ambient"></div>
+<header class="site-header"><a class="brand" href="./"><span class="brand-mark">✦</span> mini<span>party</span></a><div class="header-right"><span class="live-dot"></span> STREAMER × VIEWERS</div></header>
+<main class="container">
+  <section id="home" class="view hero">
+    <div class="eyebrow">PLAY TOGETHER · STREAM TOGETHER</div>
+    <h1>방송에서 함께 즐기는<br><em>실시간 미니게임 파티</em></h1>
+    <p class="lead">로그인 없이 닉네임으로 참여하고, 스트리머와 시청자가 함께 승부하세요.</p>
+    <div class="home-grid">
+      <article class="panel">
+        <div class="icon purple">✦</div><h2>방송 게임방 만들기</h2><p>스트리머 전용 진행 권한과 OBS 오버레이 링크가 생성됩니다.</p>
+        <label>스트리머 닉네임<input id="hostName" maxlength="18" placeholder="방송에서 사용할 이름"></label>
+        <div class="field-row"><label>최대 참가자<select id="maxPlayers"><option>4</option><option selected>8</option><option>12</option><option>16</option><option>24</option><option>32</option></select></label><label>게임 판수<select id="roundCount"><option>3</option><option selected>5</option><option>10</option><option>15</option><option>20</option></select></label></div>
+        <button id="createRoom" class="btn primary">방 만들기 <span>→</span></button>
+      </article>
+      <article class="panel">
+        <div class="icon orange">↗</div><h2>시청자로 참가하기</h2><p>방송 화면에 표시된 방 코드와 닉네임으로 입장하세요.</p>
+        <label>참가 닉네임<input id="viewerName" maxlength="18" placeholder="사용할 닉네임"></label>
+        <label>방 코드<input id="roomCode" maxlength="5" placeholder="예: A8K2Q" class="room-code"></label>
+        <button id="joinRoom" class="btn secondary">게임 참가하기 <span>→</span></button>
+      </article>
+    </div>
+    <div class="feature-line"><span>⚡ 순발력</span><span>🧠 퀴즈</span><span>🔢 기억력</span><span>🎯 전략</span><span>🏆 누적 랭킹</span></div>
+  </section>
+
+  <section id="lobby" class="view hidden">
+    <div class="section-top"><span class="tag">WAITING ROOM</span><span id="lobbyHint">참가자를 기다리는 중</span></div>
+    <div class="lobby-heading"><div><div class="eyebrow">YOUR STREAM PARTY</div><h1>시청자들이 모이고 있어요.<br><em>준비되면 바로 시작!</em></h1></div><div class="room-code-card"><small>ROOM CODE</small><strong id="roomCodeDisplay">-----</strong><button id="copyRoomCode" class="btn small">코드 복사</button></div></div>
+    <div class="lobby-grid">
+      <article class="panel"><div class="panel-title"><h2>참가자</h2><b id="playerCount">0 / 8</b></div><div id="playerList" class="player-list"></div><p class="note">👑 방장인 스트리머가 시작하면 모든 참가자에게 동시에 게임이 열립니다. 시청자의 준비 완료는 필요하지 않습니다.</p><button id="startGame" class="btn primary wide">게임 시작하기 <span>→</span></button><button id="leaveRoom" class="text-button">방 나가기</button></article>
+      <article class="panel"><div class="panel-title"><h2>예정된 게임 장르</h2><span class="muted" id="courseLength">5 ROUND</span></div><div class="game-list"><div>⚡ <b>반응속도 챌린지</b><small>신호가 뜨면 가장 빠르게!</small></div><div>💡 <b>상식 퀴즈</b><small>정답을 빠르게 선택하세요.</small></div><div>🔢 <b>숫자 기억력</b><small>순간적으로 공개되는 숫자를 기억!</small></div><div>✖️ <b>암산 스프린트</b><small>계산 문제를 정확하게 풀기.</small></div><div>🎨 <b>컬러 센스</b><small>색깔을 빠르게 판별하세요.</small></div><div>🔤 <b>단어 타이핑</b><small>제시된 단어를 먼저 입력!</small></div></div></article>
+    </div>
+    <div class="obs-card"><div><b>방송용 OBS 오버레이</b><small>브라우저 소스로 추가하면 현재 참가자와 순위가 표시됩니다.</small></div><button id="copyObs" class="btn small">OBS 링크 복사 ↗</button></div>
+  </section>
+
+  <section id="playing" class="view hidden">
+    <div class="game-top"><span class="tag">ROUND <b id="roundNumber">1</b></span><span id="gameCategory">MINI GAME</span><span class="push"></span><span id="gameClock" class="clock">대기 중</span></div>
+    <article class="panel game-panel"><div class="eyebrow" id="gameEyebrow">MINI PARTY GAME</div><h1 id="gameTitle">게임 이름</h1><p id="gameDescription" class="game-description"></p><div id="gameArea"></div><div id="gameFeedback" class="feedback" aria-live="polite"></div></article>
+    <div class="live-score"><div class="panel-title"><h2>현재 점수</h2><span class="muted">실시간 업데이트</span></div><div id="scoreList" class="score-list"></div></div>
+    <div id="hostControls" class="host-controls hidden"><button id="hostNext" class="btn primary">라운드 결과 확정 / 다음 게임</button></div>
+  </section>
+
+  <section id="results" class="view hidden">
+    <div class="eyebrow">PARTY COMPLETE</div><h1 class="result-heading">오늘의 <em>최종 순위</em></h1><p class="lead">모든 라운드가 끝났습니다. 함께해 주셔서 고마워요!</p>
+    <article class="panel result-panel"><div class="winner-icon">🏆</div><div id="finalRanking"></div><button id="backHome" class="btn primary wide">처음으로</button></article>
+  </section>
+
+  <section id="overlay" class="view hidden">
+    <div class="overlay-head"><span class="brand"><span class="brand-mark">✦</span> mini<span>party</span></span><span class="tag">LIVE LEADERBOARD</span></div>
+    <div class="overlay-room"><span>ROOM</span><b id="overlayCode">-----</b><span id="overlayRound">WAITING</span></div>
+    <div id="overlayPlayers" class="overlay-ranking"></div>
+    <div class="overlay-footer">STREAM TOGETHER · MINI PARTY</div>
+  </section>
+</main>
+<div id="toast" class="toast"></div>
+</body></html>
